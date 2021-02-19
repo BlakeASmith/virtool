@@ -33,7 +33,7 @@ class Routes(aiohttp.web.RouteTableDef):
               method: str,
               path: str,
               jobs_only: bool = False,
-              jobs_allowed: bool = True,
+              allow_jobs: bool = True,
               **kwargs: Any) -> Callable[[RouteHandler], RouteHandler]:
         """
         Create a decorator which registers an aiohttp route.
@@ -46,19 +46,19 @@ class Routes(aiohttp.web.RouteTableDef):
             are prefixed with `METH_`.
         :param path: The path of the route.
         :param jobs_only: If True, the route will be added to the :obj:`.job_routes` attribute only.
-        :param jobs_allowed: If True,  the route will be added to the route table, and to :obj:`.job_routes`.
+        :param allow_jobs: If True,  the route will be added to the route table, and to :obj:`.job_routes`.
         :param kwargs: Any keyword arguments are passed to the `RouteDef` object.
         :return: A decorator which adds the :class:`RouteHandler` to the route table, and/or :obj:`.job_routes`
         """
 
         if jobs_only:
             def _route_decorator(handler: RouteHandler):
-                self.job_routes.append(handler)
+                self.job_routes.append(RouteDef(method, path, handler, {}))
                 return handler
-        elif jobs_allowed:
+        elif allow_jobs:
             def _route_decorator(handler: RouteHandler):
-                self.job_routes.append(RouteDef(method, path, handler, kwargs))
-                super(Routes, self).route(method, path, **kwargs)
+                self.job_routes.append(RouteDef(method, path, handler, {}))
+                super(Routes, self).route(method, path, **kwargs)(handler)
                 return handler
         else:
             _route_decorator = super(Routes, self).route(method, path, **kwargs)
