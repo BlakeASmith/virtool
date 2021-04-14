@@ -19,9 +19,9 @@ import virtool.subtractions.db
 import virtool.users.db
 import virtool.utils
 from virtool.hmm.fake import create_fake_hmms
+from virtool.otus.fake import create_fake_otus
 from virtool.samples.fake import create_fake_samples
 from virtool.jobs.utils import JobRights
-from virtool.otus.fake import create_fake_otus
 from virtool.types import App
 from virtool.uploads.models import Upload
 from virtool.utils import ensure_data_dir, random_alphanumeric
@@ -37,6 +37,7 @@ async def populate(app: App):
     await create_fake_hmms(app)
     await create_fake_samples(app)
     await create_fake_jobs(app)
+    await create_fake_otus(app)
 
 
 async def remove_fake_data_path(app: App):
@@ -179,15 +180,7 @@ async def create_fake_analysis(app: App):
     ]
 
     file = await virtool.analyses.files.create_analysis_file(
-        app["pg"],
-        "analysis_2",
-        "fasta",
-        "result.fa",
-        123456
-    )
-
-||||||| merged common ancestors
-    file = await virtool.analyses.files.create_analysis_file(app["pg"], "analysis_2", "fasta", "result.fa", 123456)
+        app["pg"], "analysis_2", "fasta", "result.fa", 123456)
     await app["db"].analyses.insert_many([
         {
             "_id": "analysis_1",
@@ -249,6 +242,7 @@ async def create_integration_test_job(app: App):
         db=app["db"],
         workflow_name=name,
         job_args={
+            "analysis_id": "analysis_1",
             "sample_id": "sample_1",
             "subtraction_id": "subtraction_1",
             "ref_id": "reference_1",
@@ -276,12 +270,10 @@ async def create_fake_references(app: App):
         "virus",
         "A fake reference",
         "genome",
-        ref_id=REF_ID,
-        user_id=USER_ID
-||||||| merged common ancestors
         ref_id="reference_1",
-        user_id=USER_ID
+        user_id=USER_ID,
     )
 
     await app["db"].references.insert_one(document)
+
     logger.debug("Created fake reference")
