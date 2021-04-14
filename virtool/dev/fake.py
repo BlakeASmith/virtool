@@ -17,28 +17,26 @@ import virtool.jobs.db
 import virtool.references.db
 import virtool.subtractions.db
 import virtool.users.db
-import virtool.users.db
 import virtool.utils
 from virtool.hmm.fake import create_fake_hmms
+from virtool.samples.fake import create_fake_samples
 from virtool.jobs.utils import JobRights
 from virtool.otus.fake import create_fake_otus
 from virtool.types import App
 from virtool.uploads.models import Upload
 from virtool.utils import ensure_data_dir, random_alphanumeric
+from virtool.fake.identifiers import USER_ID
 
 logger = getLogger(__name__)
-
-REF_ID = "reference_1"
-USER_ID = "bob"
 
 
 async def populate(app: App):
     await create_fake_user(app)
     await create_fake_subtractions(app)
     await create_fake_analysis(app)
-    await create_fake_jobs(app)
     await create_fake_hmms(app)
-    await create_fake_otus(app, REF_ID, USER_ID)
+    await create_fake_samples(app)
+    await create_fake_jobs(app)
 
 
 async def remove_fake_data_path(app: App):
@@ -92,7 +90,12 @@ async def create_fake_user(app: App):
 
     """
     await virtool.users.db.create(app["db"], USER_ID, "hello_world", True)
-    await virtool.users.db.edit(app["db"], "bob", administrator=True, force_reset=False)
+
+    await virtool.users.db.edit(app["db"],
+                                "bob",
+                                administrator=True,
+                                force_reset=False)
+
     logger.debug("Created fake user")
 
 
@@ -119,37 +122,41 @@ async def create_fake_subtractions(app: App):
 
     upload = {"id": upload_id, "name": upload_name}
 
-    await app["db"].subtraction.insert_many(
-        [
-            {
-                "_id": "subtraction_1",
-                "name": "Subtraction 1",
-                "nickname": "",
-                "deleted": False,
-                "ready": True,
-                "file": upload,
-                "user": {"id": USER_ID},
+    await app["db"].subtraction.insert_many([
+        {
+            "_id": "subtraction_1",
+            "name": "Subtraction 1",
+            "nickname": "",
+            "deleted": False,
+            "ready": True,
+            "file": upload,
+            "user": {
+                "id": USER_ID
             },
-            {
-                "_id": "subtraction_2",
-                "name": "Subtraction 2",
-                "nickname": "",
-                "deleted": False,
-                "ready": True,
-                "file": upload,
-                "user": {"id": USER_ID},
+        },
+        {
+            "_id": "subtraction_2",
+            "name": "Subtraction 2",
+            "nickname": "",
+            "deleted": False,
+            "ready": True,
+            "file": upload,
+            "user": {
+                "id": USER_ID
             },
-            {
-                "_id": "subtraction_unready",
-                "name": "Subtraction Unready",
-                "nickname": "",
-                "deleted": False,
-                "ready": False,
-                "file": upload,
-                "user": {"id": USER_ID},
+        },
+        {
+            "_id": "subtraction_unready",
+            "name": "Subtraction Unready",
+            "nickname": "",
+            "deleted": False,
+            "ready": False,
+            "file": upload,
+            "user": {
+                "id": USER_ID
             },
-        ]
-    )
+        },
+    ])
 
     logger.debug("Created fake subtractions")
 
@@ -179,6 +186,8 @@ async def create_fake_analysis(app: App):
         123456
     )
 
+||||||| merged common ancestors
+    file = await virtool.analyses.files.create_analysis_file(app["pg"], "analysis_2", "fasta", "result.fa", 123456)
     await app["db"].analyses.insert_many([
         {
             "_id": "analysis_1",
@@ -201,7 +210,7 @@ async def create_fake_analysis(app: App):
             "reference": {
                 "id": ref_id
             },
-            "subtractions": subtractions
+            "subtractions": subtractions,
         },
         {
             "_id": "analysis_2",
@@ -225,8 +234,8 @@ async def create_fake_analysis(app: App):
                 "id": ref_id
             },
             "subtractions": subtractions,
-            "files": [file]
-        }
+            "files": [file],
+        },
     ])
 
     logger.debug("Created fake analyses")
@@ -268,6 +277,9 @@ async def create_fake_references(app: App):
         "A fake reference",
         "genome",
         ref_id=REF_ID,
+        user_id=USER_ID
+||||||| merged common ancestors
+        ref_id="reference_1",
         user_id=USER_ID
     )
 
