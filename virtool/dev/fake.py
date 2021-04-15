@@ -29,6 +29,8 @@ from virtool.fake.identifiers import USER_ID
 
 logger = getLogger(__name__)
 
+REF_ID = "reference_1"
+
 
 async def populate(app: App):
     await create_fake_user(app)
@@ -37,7 +39,7 @@ async def populate(app: App):
     await create_fake_hmms(app)
     await create_fake_samples(app)
     await create_fake_jobs(app)
-    await create_fake_otus(app)
+    await create_fake_otus(app, REF_ID, USER_ID)
 
 
 async def remove_fake_data_path(app: App):
