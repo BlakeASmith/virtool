@@ -38,10 +38,10 @@ class TestCaseDataFactory:
 
     async def analysis(
             self,
-            index_id: str,
-            ref_id: str,
-            subtraction_ids: List[str],
-            sample_id: str,
+            index_id: str = None,
+            ref_id: str = None,
+            subtraction_ids: List[str] = None,
+            sample_id: str = None,
             workflow: str = "test",
             ready=False
     ):
