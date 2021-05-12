@@ -137,6 +137,7 @@ async def acquire(db, job_id: str) -> Dict[str, Any]:
     :param db: the application database object
     :param job_id: the ID of the job to start
     :return: the complete job document
+    :raise ValueError: When the given job_id does not correspond to a job
 
     """
     key, hashed = virtool.utils.generate_key()
@@ -147,6 +148,9 @@ async def acquire(db, job_id: str) -> Dict[str, Any]:
             "key": hashed
         }
     }, projection=PROJECTION)
+
+    if document is None:
+        raise ValueError(f"job {job_id} does not exist.")
 
     document["key"] = key
 

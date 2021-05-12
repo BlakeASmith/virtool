@@ -83,7 +83,10 @@ async def acquire(req):
     if await get_one_field(db.jobs, "acquired", job_id) is True:
         return bad_request("Job already acquired")
 
-    document = await virtool.jobs.db.acquire(db, job_id)
+    try:
+        document = await virtool.jobs.db.acquire(db, job_id)
+    except ValueError:
+        return not_found("Job does not exist")
 
     return json_response(base_processor(document))
 
