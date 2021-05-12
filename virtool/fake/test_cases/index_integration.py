@@ -18,5 +18,6 @@ async def populate(app):
 
     await factory.job(workflow=name, args={
         "index_id": index_final["_id"],
+        "ref_id": reference["_id"],
         "analysis_id": analysis["_id"],
     })
