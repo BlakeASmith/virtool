@@ -6,6 +6,9 @@ async def populate(app):
     factory = TestCaseDataFactory(app, USER_ID, "index_integration_test_job")
 
     reference = await factory.reference()
+
+    await factory.otus(reference["_id"])
+
     index_final = await factory.index(ref_id=reference["_id"], finalize=True)
 
     name = "index_integration_text"
