@@ -19,6 +19,7 @@ from virtool.samples.fake import create_fake_sample
 from virtool.subtractions.fake import (create_fake_fasta_upload,
                                        create_fake_finalized_subtraction)
 from virtool.types import App
+from virtool.fake.identifiers import USER_ID
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 class TestCaseDataFactory:
     """Initialize the database with fake data for a test case."""
 
-    def __init__(self, app: App, user_id: str, job_id: str = None):
+    def __init__(self, app: App, user_id: str = USER_ID, job_id: str = None):
         self.fake = FakerWrapper()
         self.user_id = user_id
         self.job_id = job_id or self.fake.get_mongo_id()
