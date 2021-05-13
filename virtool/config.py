@@ -19,6 +19,8 @@ import virtool.jobs_api.main
 import virtool.logs
 import virtool.redis
 import virtool.utils
+import virtool.fake.generate
+import virtool.fake.test_cases
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +69,7 @@ def validate_limits(config: dict) -> tuple:
 
         if job_limit > host_limit:
             fatal = True
-            logger.fatal(
-                f"Configured {job_limit_key} ({job_limit}) exceeds instance {resource_key} limit ({host_limit})"
-            )
+            logger.fatal(f"Configured {job_limit_key} ({job_limit}) exceeds instance {resource_key} limit ({host_limit})")
 
     if fatal:
         sys.exit(1)
@@ -247,7 +247,8 @@ def start_runner(ctx, job_list, mem, proc, temp_path):
     }
 
     logger.info("Starting in runner mode")
-    asyncio.get_event_loop().run_until_complete(virtool.jobs.run.run(config, virtool.jobs.runner.JobRunner))
+    asyncio.get_event_loop().run_until_complete(
+        virtool.jobs.run.run(config, virtool.jobs.runner.JobRunner))
 
 
 @cli.command("jobsAPI")
@@ -281,3 +282,23 @@ def start_jobs_api(ctx, fake, port, host):
             **ctx.obj
         )
     )
+
+
+@cli.command()
+@click.option("--test-case",
+              type=click.Choice(virtool.fake.test_cases.__all__),
+              help="Dump data from a pre-defined test case")
+@click.argument("dump-path", type=click.Path(exists=True))
+@click.pass_context
+def generate(ctx, test_case: str, dump_path: str):
+    """Generate test data"""
+    dump_path = Path(dump_path).absolute()
+
+    if test_case is not None:
+        asyncio.get_event_loop().run_until_complete(
+            virtool.fake.generate.generate_data_for_test_case(
+                ctx.obj, test_case, dump_path)
+        )
+        return
+
+    click.echo(generate.get_help(ctx))
