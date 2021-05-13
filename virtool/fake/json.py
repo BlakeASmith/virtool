@@ -76,9 +76,11 @@ class VirtoolJsonObjectGroup:
     analyses: List[dict] = field(default_factory=list)
     hmms: List[dict] = field(default_factory=list)
     indexes: List[dict] = field(default_factory=list)
+    jobs: List[dict] = field(default_factory=list)
     otus: List[dict] = field(default_factory=list)
     references: List[dict] = field(default_factory=list)
     samples: List[dict] = field(default_factory=list)
+    subtractions: List[dict] = field(default_factory=list)
 
     def __iter__(self):
         return chain(astuple(self))
