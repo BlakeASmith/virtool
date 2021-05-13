@@ -20,6 +20,7 @@ from virtool.subtractions.fake import (create_fake_fasta_upload,
                                        create_fake_finalized_subtraction)
 from virtool.types import App
 from virtool.fake.identifiers import USER_ID
+from virtool.fake.json import VirtoolJsonObjectGroup
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,9 @@ class TestCaseDataFactory:
         self.pg = app["pg"]
         self.settings = app["settings"]
         self.data_path = self.settings["data_path"]
+
+        self._objects = VirtoolJsonObjectGroup()
+        self.dump = self._objects.dump
 
     async def analysis(
             self,
@@ -84,16 +88,21 @@ class TestCaseDataFactory:
 
         await self.db.analyses.insert_one(document)
 
+        self._objects.analyses.append(document)
+
         return document
 
     async def sample(self, paired: bool, finalized: bool) -> dict:
-        return await create_fake_sample(
+        document = await create_fake_sample(
             app=self.app,
             sample_id=self.fake.get_mongo_id(),
             user_id=self.user_id,
             paired=paired,
             finalized=finalized,
         )
+
+        self._objects.samples.append(document)
+        return document
 
     async def subtraction(self, finalize=True) -> dict:
         id_ = self.fake.get_mongo_id()
@@ -111,7 +120,7 @@ class TestCaseDataFactory:
                 user_id=self.user_id,
             )
 
-        return await virtool.subtractions.db.create(
+        document = await virtool.subtractions.db.create(
             db=self.db,
             user_id=self.user_id,
             upload_id=upload_id,
@@ -120,6 +129,10 @@ class TestCaseDataFactory:
             filename=upload_name,
             subtraction_id=id_,
         )
+
+        self._objects.subtractions.append(document)
+
+        return document
 
     async def reference(self) -> dict:
         id_ = self.fake.get_mongo_id()
@@ -135,6 +148,8 @@ class TestCaseDataFactory:
         )
 
         await self.db.references.insert_one(document)
+
+        self._objects.references.append(document)
 
         return document
 
@@ -170,16 +185,26 @@ class TestCaseDataFactory:
                 index_id=id_
             )
 
+        self._objects.indexes.append(document)
+
         return document
 
     async def hmms(self) -> List[dict]:
-        return await create_fake_hmms(self.app)
+        documents = await create_fake_hmms(self.app)
+
+        self._objects.hmms.extend(documents)
+
+        return documents
 
     async def otus(self, ref_id: str) -> List[dict]:
-        return await create_fake_otus(self.app, ref_id, self.user_id)
+        documents = await create_fake_otus(self.app, ref_id, self.user_id)
+
+        self._objects.otus.extend(documents)
+
+        return documents
 
     async def job(self, workflow: str, args: dict, rights=JobRights()):
-        return await virtool.jobs.db.create(
+        document = await virtool.jobs.db.create(
             db=self.db,
             workflow_name=workflow,
             job_args=args,
@@ -187,3 +212,6 @@ class TestCaseDataFactory:
             job_id=self.job_id,
             rights=rights,
         )
+
+        self._objects.jobs.append(document)
+        return document
