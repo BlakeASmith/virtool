@@ -18,3 +18,5 @@ async def populate(app):
         "analysis_id": analysis["_id"],
         "sample_id": sample["_id"]
     })
+
+    return factory

@@ -24,3 +24,5 @@ async def populate(app):
         "ref_id": reference["_id"],
         "analysis_id": analysis["_id"],
     })
+
+    return factory
