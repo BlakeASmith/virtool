@@ -8,9 +8,10 @@ import functools
 from concurrent.futures import ThreadPoolExecutor
 
 from virtool.example import example_path as path
+from tests.conftest import TEST_FILES_PATH
 
-SAM_PATH = Path.cwd() / "tests" / "test_files" / "test_al.sam"
-SAM_50_PATH = Path.cwd() / "tests" / "test_files" / "sam_50.sam"
+SAM_PATH = TEST_FILES_PATH / "test_al.sam"
+SAM_50_PATH = TEST_FILES_PATH / "sam_50.sam"
 
 
 class MockRequest:
