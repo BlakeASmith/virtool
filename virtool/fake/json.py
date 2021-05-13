@@ -51,13 +51,7 @@ class VirtoolCollectionSerializer(JsonSerializer[List[dict]]):
 
     @classmethod
     def __to_json__(cls, lst: List[dict]):
-        lst = [
-            {k: str(v) if isinstance(v, datetime.datetime) else v
-             for k, v in obj.items()}
-            for obj in lst
-        ]
-
-        return json.dumps(lst)
+        return json.dumps(lst, default=str)
 
     @classmethod
     def __from_json__(cls, json_str: str):
@@ -87,7 +81,7 @@ class VirtoolJsonObjectGroup:
 
     async def dump(self, directory: Path):
         for collection in fields(self):
-            async with aiofiles.open(directory/collection.name, "w") as f:
+            async with aiofiles.open(directory/f"{collection.name}.json", "w") as f:
                 json_target = getattr(self, collection.name)
                 await f.write(
                     tojson(
@@ -100,7 +94,7 @@ class VirtoolJsonObjectGroup:
     async def load(cls, directory: Path) -> "VirtoolJsonObjectGroup":
         objects = VirtoolJsonObjectGroup()
         for collection in fields(objects):
-            async with aiofiles.open(directory/collection.name, "r") as f:
+            async with aiofiles.open(directory/f"{collection.name}.json", "r") as f:
                 setattr(objects,
                         collection.name,
                         fromjson(
